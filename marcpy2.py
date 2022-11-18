@@ -39,6 +39,86 @@ from marcpy1 import fieldValue
 # In[7]:
 
 
+def select(records, fieldtag, values, subfields=None,  compMethod=0, cutoff=0.9, compReq='all' ):
+    #returns the records in records for which the value of the fieldtag/subfields corresponds to values
+    #subfieldds and values must be iterables. 
+    #   If subfields is None, values are assumed to contain 1 element (i.e. only the 1st element is used)
+    #compMethod represent the method by which the similarity is calculated (default = exact )
+    #compReq designates the degree of completeness of the comparison between values and the subfields values. 
+    #   'all': all items in values is to be compared pairwise with the items in the current fld.get_subfields(*subFields). 
+    #          In effect, this means that values must be similar to fld.get_subfields(*subFields)
+    #   'allExist': all items in values must be similar to some value in fld.get_subfields(*subFields). 
+    #   'oneExists': at least one item in values must be similar to some value in fld.get_subfields(*subFields)
+    result=[]
+    for rec in records:
+        selected=False
+        if subfields is None:
+            for fld in rec.get_fields(fieldtag): 
+                if similar(values[0], fld.value(), compMethod, cutoff):
+                    selected=True
+        else:
+            for fld in rec.get_fields(fieldtag): 
+                if similar(values, fld.get_subfields(*subfields),compMethod, cutoff, compReq):
+                    selected=True
+        if selected: 
+            result.append(rec)
+    return result
+
+def selectAssigned(records, fieldtag, subfields=None,  compReq='all'):
+    #Update 11.10.2019 (introducing 'allIn1, and correcting the handling of 'all')
+    #returns the records in records for the given combinations of fieldtag/subfields exist
+    #   If subfields is None, records with at least 1 instance of fieldtag are included. In this case, compReq is ignored.
+    #compReq designates the degree of completeness of the comparison between values and the subfields values. 
+    #   'all': for a record to be selected, all fieldtag/subfields combinations must exist, but not necessarily 
+    #          in the same  field occurrence 
+    #                           Example: fieldtag='700', subfields=['a', 't'], 'all'. A record containing
+    #                                    700$aIbsen, Henrik $tEt dukkehjem as well as a record containing the 2 fields 
+    #                                    700$aIbsen Henrik
+    #                                    700$tRosmersholm
+    #                                    will be included in the result set
+    #          NOT RELIABLE: fld.get_subfields(t1, td) returns the values of t1 and t2 in the order they occur in the record
+    #                        not in the order given by the method call.
+    #   'allIn1': Only returns records in which at least one occurence of fieldtag contains all subfields, like
+    #                           Example: fieldtag='700', subfields=['a', 't'], 'allIn1'. A record containing
+    #                                    700$aIbsen, Henrik $tEt dukkehjem will be included in the result set, but records 
+    #                                    with only 700$a or 700$t separately will not
+    #   'oneExists': for a record to be selected,at least one fieldtag/subfields combination must exist
+    result=[]
+    for rec in records:
+        selected=False
+        if len(rec.get_fields(fieldtag)) > 0:
+            if subfields is None:
+                selected=True
+            elif compReq == 'all':
+                foundSubfields=set()
+                for fld in rec.get_fields(fieldtag): 
+                    for sfld in subfields:
+                        if len(fld.get_subfields(sfld)) > 0:       #sfld is present in fld
+                               foundSubfields.add(sfld)
+                if foundSubfields == set(subfields):            
+                    selected=True                                 #all subfields found in one of the field occurrences
+            elif compReq =='allin1':
+                flds = rec.get_fields(fieldtag)
+                k=0
+                found=False
+                while k<len(flds) and not found:
+                    fld=flds[k]
+                    found=True
+                    for sfld in subfields:
+                        if len(fld.get_subfields(sfld)) == 0:       #sfld is not present in fld
+                               found=False
+                    if not found:
+                        k+=1
+                    else:
+                        selected=True                                 #all subfields found in one of the field occurrences
+            else:                                                 #compReq='oneExists'
+                for fld in rec.get_fields(fieldtag): 
+                    if len(fld.get_subfields(*subfields))>0:       #one subfield in one of the fieldstag occurrenses is enough
+                           selected = True
+        if selected: 
+            result.append(rec)
+    return result
+
 def filterRecords(records, regpattern, fieldtags, subfieldtags=[]):
     #returns a sublist of records, containing the records 
     #where the value on at least one of fieldtags (and subfieldtags]) matches regpattern
