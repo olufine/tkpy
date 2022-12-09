@@ -80,6 +80,37 @@ def subfieldCounter(records, fieldtags, subfieldtags, delimiter='$'):
         cnt[tag] +=1
     return cnt
 
+def subfieldCounter2(records, delimiter='$'):
+    #calculates the occurrences of all subfields in all fields in records.
+    #Also erroneous tags are counted
+    #records is a list of pymarc.Record objects
+    #returns a Counter object
+    #Multiple occurrences of a subfield are counted according to occurrence
+    fieldtags=[]
+    #Do not consider control fields
+    for tg in list(fieldCounter(records).keys()):
+        if not tg.startswith('00'):
+            fieldtags.append(tg)
+    cnt=Counter()
+    fields=[]
+    tags=[]
+    for rec in records:
+        fields.extend(rec.get_fields(*fieldtags))  #extract all fields correspnding to fieldtags
+    for fld in fields:
+        sublist=fld.subfields   # e.g. ['a','Haugianismen','b','dens Historie og Væsen, 'b', 'samt Forhold til Herrnhuttismen']
+        subfieldtags=[]
+        for i in range(0, len(sublist)//2):
+            j=i*2
+            subfieldtags.append(sublist[j])       #e.g. ['a', 'b', 'b', 'c']   ('b' is repeated)
+        for sfldtag in subfieldtags:                #check if the given subfields exist in fld
+            #if len(fld.get_subfields(sfldtag))>1:
+                #print(fld.get_subfields(sfldtag))
+            if len(fld.get_subfields(sfldtag))>0:
+                tags.append(fld.tag + delimiter + sfldtag)
+    for tag in tags:
+        cnt[tag] +=1
+    return cnt
+
 def valueCounter(records, fieldtags, subfieldtags=None, fldPart=None, slice=None, 
                  separateCounting=False, delimiter='$', leadertag='000', countDupl=True):
     #***UPDATED 26.04.2022***** (configure counting of duplicate values)
