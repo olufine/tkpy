@@ -36,7 +36,7 @@ if repopath not in sys.path:
 from marcpy1 import fieldValue
 
 
-# In[7]:
+# In[2]:
 
 
 def select(records, fieldtag, values, subfields=None,  compMethod=0, cutoff=0.9, compReq='all' ):
@@ -118,6 +118,43 @@ def selectAssigned(records, fieldtag, subfields=None,  compReq='all'):
         if selected: 
             result.append(rec)
     return result
+
+def selectMissingFields(records, fieldtags, all=True):
+    #Returns a list of the records in records for which
+    #    all the fields in fieldtags are missing (if all=True)
+    #    at least one of the fields in fieldtags are missing (all=/= True)
+    res=[]
+    if all == True:
+        for rec in records:
+            if rec.get_fields(*fieldtags) ==[]:
+                res.append(rec)
+    else:
+        for rec in records:
+            someMissing=False
+            i=0
+            while i < len(fieldtags) and not someMissing:
+                if rec.get_fields(fieldtags[i]) ==[]:
+                    someMissing=True
+                    res.append(rec)
+                else:
+                    i+=1
+    return res
+
+def selectMissingSubfields(records, fieldtag, subfieldtags):
+    #Returns a list of the records in records which contain at least one 
+    #field for which all of the subfields in subfieldtags are missing.
+    res=[]
+    for rec in records:
+        flds=rec.get_fields(fieldtag)
+        subMissing=False
+        i=0
+        while i<len(flds) and not subMissing:
+            if flds[i].get_subfields(*subfieldtags) == []:
+                subMissing=True
+                res.append(rec)
+            else:
+                i+=1
+    return res
 
 def filterRecords(records, regpattern, fieldtags, subfieldtags=[]):
     #returns a sublist of records, containing the records 
@@ -229,4 +266,66 @@ def fetchRecordSimple(records, ident):
         else:
             k+=1
     return rec
+
+def indexRecords(records):
+    #Return a dict with MMsIds as keys and its record as value
+    #To be used for efficient retrieval of single records
+    indx=dict()
+    for rec in records:
+        ide=rec.get_fields('001')[0].value()
+        indx[ide]=rec
+    return indx
+
+def indexRecords2(records, fieldtag, subfieldtags=None, sep='$'):
+    #Return a dict with value of fieldtag+subfieldtags as key, and the list of matching records as value
+    indx=dict()
+    for rec in records:
+        flds=rec.get_fields(fieldtag)
+        for fld in flds:
+            rkey=''
+            if subfieldtags is None:
+                rkey=fld.value()
+            else:
+                if fld.get_subfields(*subfieldtags) != []:
+                    rkey=sep.join(fld.get_subfields(*subfieldtags))
+            if rkey != '':
+                if rkey in indx.keys():
+                    indx[rkey].append(rec)
+                else:
+                    indx[rkey]=[rec]
+    #remove duplicates
+    for k in indx.keys():
+        indx[k]=list(set(indx[k]))
+    return indx
+
+def indexRecords3(records, fieldtag, subfieldtags=None, sep='$'):
+    #Like indexRecords2, but instead of list of records as value for each key
+    # a list of tuples are the value. Second item in the tuple is the record matching the key, 
+    #the first item is the display name (fld.value()) of the fielddisplay name (string, and the second is the 
+    #corresponding value)
+    indx=dict()
+    for rec in records:
+        flds=rec.get_fields(fieldtag)
+        for fld in flds:
+            rkey=''
+            if subfieldtags is None:
+                rkey=fld.value()
+            else:
+                if fld.get_subfields(*subfieldtags) != []:
+                    rkey=sep.join(fld.get_subfields(*subfieldtags))
+            if rkey != '':
+                if rkey in indx.keys():
+                    indx[rkey].append((fld.value(), rec))
+                else:
+                    indx[rkey]=[(fld.value(), rec)]
+    #remove duplicates
+    for k in indx.keys():
+        indx[k]=list(set(indx[k]))
+    return indx
+
+
+# In[ ]:
+
+
+
 
