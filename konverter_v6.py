@@ -25,11 +25,12 @@ import re
 def konverter(filnavn, konfignavn):
     
     konf = __import__(konfignavn)
+    print(konf)
     uribase = konf.uribase
     tematres_uribase = konf.tematres_uribase
     languages = ','.join (['"'+x+'"' for x in konf.languages])
     tabort=konf.remove_subtrees
-    
+    print(tabort)
     dom = etree.parse(filnavn)
     
     fiksRDF(dom, konf)
