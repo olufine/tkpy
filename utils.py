@@ -128,10 +128,5 @@ def transpose(lstlst):
         result.append(comp)    
     return result    
 
-def sum(lst):
-    res=0
-    for i in lst:
-        res+=i
-    return res
     
 
