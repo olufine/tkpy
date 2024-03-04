@@ -267,6 +267,24 @@ def fetchRecordSimple(records, ident):
             k+=1
     return rec
 
+def recordsRepeatedField(records, fieldtag):
+    #Returns the records (as a list) that contains more than one occurrence of fieldtag
+    result=[]
+    for rec in records:
+        if len(rec.get_fields(fieldtag))>1:
+            result.append(rec)
+    return result
+
+def recordsRepeatedSubfield(records, fieldtag, subfieldtag):
+    #Returns the records (as a list) that contains fields with tag=fieldtag 
+    # with more than one occurrence of subfiledtag
+    result=[]
+    for rec in records:
+        for fld in rec.get_fields(fieldtag):
+            if len(fld.get_subfields(subfieldtag))>1:
+                result.append(rec)
+    return result
+
 def indexRecords(records):
     #Return a dict with MMsIds as keys and its record as value
     #To be used for efficient retrieval of single records

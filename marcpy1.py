@@ -311,6 +311,40 @@ def subfieldValues (records, fieldtags, subfieldtags):
             values.extend(fld.get_subfields(*subfieldtags))
     return set(values)
 
+def subfieldValueTuples (records, fieldtags, subfieldtags, includeId=True):
+    #returns a set containing all the different tuples of the fields/subfields specified
+    #The tuples have the same length and order as subfieldtags
+    #records is a list of pymarc.Record objects
+    #Example: subfieldValues(solstad, ['913'],['a','b']) returns
+    #{('solstad', 'NB'), ('littforsk', 'NB')}
+    #if a subfield does not exist, an empty string will be put in the tuple
+    values = []
+    for rec in records:
+        fields= rec.get_fields(*fieldtags)   
+        for fld in fields:
+            slist=[]
+            if fld.is_control_field():
+                val=fld.value()
+                if val=='':
+                    slist.append(())
+                else:
+                    slist.append(tuple([val]))    #singleton tuple
+                #print(slist)
+            else:
+                for sfld in subfieldtags:             #iterate over subfieldtags to be sure of order
+                    svals=fld.get_subfields(sfld)
+                    if svals ==[]:
+                        slist.append(())
+                    else:
+                        slist.append(tuple(svals))
+                #print(slist)
+            if includeId==True:
+                slist.insert(0, tuple([rec.get_fields('001')[0].value()]))   #singleton tuple
+                #print(slist)
+            values.append(tuple(slist))
+    return set(values)
+
+
 def writeFieldsToCSV(filename, records, fieldtags, condense=False):
     #write the value of the fields specified in fieldtags to the file filename (should be a .csv or excel(?)file)
     with open(filename, 'w', newline='',  encoding = 'utf-8') as f:
