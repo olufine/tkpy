@@ -33,7 +33,7 @@ if repopath not in sys.path:
 #import iogeneral
 #import iomarc
 #import marcpy1
-from marcpy1 import fieldValue
+from marcpy1 import fieldValue, similar
 
 
 # In[2]:
