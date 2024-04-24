@@ -14,7 +14,7 @@ import pdb
 import traceback
 
 
-# In[2]:
+# In[1]:
 
 
 
@@ -46,8 +46,19 @@ def printFields(records, fldtags):
              for f in rec.get_fields(ftag):
                  print('\t', ftag, ':', ''.join(f.indicators), f.value())            
 
-
-         
+def printFieldss(records, fldtags):
+ #prints subfieldtags with values of the given fields for all records in a set/list
+ for rec in records:
+     print(rec.get_fields('001')[0])
+     for ftag in fldtags:
+         if ftag=='000':
+             print('\t', ftag, ':', rec.leader)
+         elif ftag.startswith('00'):
+             for f in rec.get_fields(ftag):
+                 print('\t', ftag, ':', f.value())
+         else:
+             for f in rec.get_fields(ftag):
+                 print('\t', ftag, ':', ''.join(f.indicators), f.subfields)           
 
 
 # In[ ]:
