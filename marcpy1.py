@@ -596,7 +596,18 @@ def pairWiseSimilarity(lst1, lst2, method=0):
         simlist.append(0)                          #penalty for unequal length of lst1 and lst2
     return simlist
     
-            
+def strippedValue (record, fieldtag, subfieldtag, prefix='(EXLNZ-47BIBSYS_NETWORK)'):
+    #returns the last value of fieldtag.subfieldtag that has prefix as prefix, without the prefix
+    #Example: 035.a=(EXLNZ-47BIBSYS_NETWORK)990000029844702201 in record r
+    #strippedValue(r, '035', 'a') returns '990000029844702201'
+    result=''
+    for f in record.get_fields(fieldtag):
+        v=f.get_subfields(subfieldtag)
+        if v!=[]:
+            if v[0].startswith(prefix) == True:
+                result=v[0][len(prefix):]
+    return result            
+
 
 
 # In[ ]:
