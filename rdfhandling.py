@@ -29,7 +29,7 @@ if repopath not in sys.path:
 import konverter_v6
 
 
-# In[3]:
+# In[1]:
 
 
 # import rdflib
@@ -42,7 +42,7 @@ from rdflib.plugins.serializers import n3, rdfxml, turtle
 
 #import surf             (surf no good for Python 3.x)
 from IPython.display import display, display_pretty, display_html, HTML
-from graphviz import Digraph
+#from graphviz import Digraph
 from skosify import skosify
 import json
 
