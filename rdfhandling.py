@@ -328,7 +328,7 @@ def removeConcepts(g, concepts):
         g.remove((None,None,c))
 
 
-# In[7]:
+# In[1]:
 
 
 def idNum(entity):
@@ -349,7 +349,7 @@ def prefLabel(graph, entity, lang):
     return pref
 
 def altLabel(graph, entity, lang):
-    #returns the first altLabel of entity in the lang language, 
+    #returns the last altLabel of entity in the lang language, 
     #or None if no altLabel in lang is there
     alt=None
     for al in graph.objects(entity, SKOS.altLabel):
@@ -357,6 +357,14 @@ def altLabel(graph, entity, lang):
             alt=al
     return alt
 
+def label(graph, entity, lang):
+    #returns the last RDFS.label of entity in the lang language, 
+    #or None if no label in lang is there
+    labl=None
+    for lbl in graph.objects(entity, RDFS.label):
+        if lbl.language == lang:
+            labl=lbl
+    return labl
 
 def exactMatches(graph, lang):
     #return a list of concepts which are exact matches to some other concept
@@ -371,4 +379,10 @@ def exactMatches(graph, lang):
     
         
     
+
+
+# In[ ]:
+
+
+
 
