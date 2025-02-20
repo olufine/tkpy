@@ -19,6 +19,13 @@ def oneLineStr(s):
     #    each line of s.
     return ''.join(list(map(lambda x: x.strip() + ' ', s.splitlines()))).strip()
 
+def curePattern(pattern, specialchars):
+    #inserts escape signs in front of reserved characters in regular pattersn
+    pt=pattern
+    for ch in specialchars:
+        pt=pt.replace(ch, '\\' +ch)  #må ha 
+    return pt
+
 def reverseDict (d):
     #returns a new dict where the keys are the values of d, and the values lists of the keys of d
     #assumes that the values of d are strings or numbers (unmutable)
@@ -30,6 +37,13 @@ def reverseDict (d):
                 if d[k1]==d[k2] and k2 not in r[d[k1]]:
                     r[d[k1]].append(k2)
     return r
+
+def copyDict(dictionary):
+    #returns a new Dict which is a copy of the argument dict
+    cpy=dict()
+    for k in dictionary.keys():
+        cpy[k]=dictionary[k]
+    return cpy
 
 def mergeDicts(dictionaries, nullVal=0):
     #returns a Dict which is a merge between the dictionaries in dictionaries 
@@ -129,4 +143,10 @@ def transpose(lstlst):
     return result    
 
     
+
+
+# In[ ]:
+
+
+
 

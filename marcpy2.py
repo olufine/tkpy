@@ -4,7 +4,7 @@
 # # Functions for Marc handling - 2
 # 
 
-# In[6]:
+# In[5]:
 
 
 from pprint import pprint as pp
@@ -32,7 +32,7 @@ if repopath not in sys.path:
 #import utils
 #import iogeneral
 #import iomarc
-#import marcpy1
+import marcpy1
 from marcpy1 import fieldValue, similar
 
 
@@ -139,6 +139,13 @@ def selectMissingFields(records, fieldtags, all=True):
                 else:
                     i+=1
     return res
+
+def someAssigned(records, fieldtags, subfields=[]):
+    #Return the records in recoprds for which at least one of fieldtags are assigned
+    res=set()
+    for ft in fieldtags:
+        res=res.union(selectAssigned(records, ft, subfields=subfields))
+    return list(res)
 
 def selectMissingSubfields(records, fieldtag, subfieldtags):
     #Returns a list of the records in records which contain at least one 
