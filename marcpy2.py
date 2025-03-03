@@ -36,7 +36,7 @@ import marcpy1
 from marcpy1 import fieldValue, similar
 
 
-# In[2]:
+# In[1]:
 
 
 def select(records, fieldtag, values, subfields=None,  compMethod=0, cutoff=0.9, compReq='all' ):
@@ -343,6 +343,34 @@ def indexRecords3(records, fieldtag, subfieldtags=None, sep='$'):
                     indx[rkey].append((fld.value(), rec))
                 else:
                     indx[rkey]=[(fld.value(), rec)]
+    #remove duplicates
+    for k in indx.keys():
+        indx[k]=list(set(indx[k]))
+    return indx
+
+def indexRecords2ByControlField(records, fieldtag, slice=None, leadertag='000'):
+    #Return a dict with part of fieldtag (part given by slice) as key, and the list of matching records as value
+    indx=dict()
+    for rec in records:
+        if fieldtag==leadertag:
+            rkey=rec.leader
+            if type(slice) == tuple and len(slice)>1: 
+                    rkey=rec.leader[slice[0]:slice[1]]
+            if rkey in indx.keys():
+                indx[rkey].append(rec)
+            else:
+                indx[rkey]=[rec]
+        else:
+            flds=rec.get_fields(fieldtag)
+            for fld in flds:
+                rkey=fld.value()
+                if type(slice) == tuple and len(slice)>1: 
+                    rkey=fld.value()[slice[0]:slice[1]]
+                #if rkey != '':
+                if rkey in indx.keys():
+                    indx[rkey].append(rec)
+                else:
+                    indx[rkey]=[rec]
     #remove duplicates
     for k in indx.keys():
         indx[k]=list(set(indx[k]))
