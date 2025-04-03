@@ -97,16 +97,8 @@ def subfieldCounter2(records, delimiter='$'):
     for rec in records:
         fields.extend(rec.get_fields(*fieldtags))  #extract all fields correspnding to fieldtags
     for fld in fields:
-        sublist=fld.subfields   # e.g. ['a','Haugianismen','b','dens Historie og Væsen, 'b', 'samt Forhold til Herrnhuttismen']
-        subfieldtags=[]
-        for i in range(0, len(sublist)//2):
-            j=i*2
-            subfieldtags.append(sublist[j])       #e.g. ['a', 'b', 'b', 'c']   ('b' is repeated)
-        for sfldtag in subfieldtags:                #check if the given subfields exist in fld
-            #if len(fld.get_subfields(sfldtag))>1:
-                #print(fld.get_subfields(sfldtag))
-            if len(fld.get_subfields(sfldtag))>0:
-                tags.append(fld.tag + delimiter + sfldtag)
+        for sf in fld.subfields:   # fld.subfields is a list of named tuples [Subfield(code='a',  value='Haugianismen'),...] :
+            tags.append(fld.tag + delimiter + sf.code)
     for tag in tags:
         cnt[tag] +=1
     return cnt
