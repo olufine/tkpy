@@ -14,6 +14,19 @@ import pdb
 import traceback
 
 
+
+# In[1]:
+
+
+import os
+import sys
+repopath=os.path.abspath('../Gitrepos/tkpy')
+if repopath not in sys.path:
+    sys.path.append(repopath)
+import utils
+from utils import oneLineStr
+
+
 # In[1]:
 
 
