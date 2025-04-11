@@ -73,7 +73,7 @@ def printFieldss(records, fldtags):
                     print('\t', ftag, ':', ''.join(f.indicators), f.subfields)      
 
 
-# In[3]:
+# In[5]:
 
 
 #Making spreadsheet reports from marc records based on a spec in form of a dict
@@ -137,7 +137,7 @@ def makeRowPart4Field1 (record, tg, subtags=[], concatFields=True, sep1='|', sep
             subdict[subtag]=''
         for fld in record.get_fields(tg):
             if subtags==[]:
-                if tg.startswidth('00'):
+                if tg.startswith('00'):
                     valstr= valstr + sep1 + fld.value()
                 else:
                     valstr= valstr + sep1 + oneLineStr(fld.value())
@@ -157,7 +157,7 @@ def makeRowPart4Field1 (record, tg, subtags=[], concatFields=True, sep1='|', sep
         for fld in record.get_fields(tg):
             fieldval=[]
             if subtags==[]:
-                if tg.startswidth('00'):
+                if tg.startswith('00'):
                     fieldval.append(fld.value())   #we want the exact string for positional fields
                 else:
                     fieldval.append(oneLineStr(fld.value()))
@@ -184,7 +184,7 @@ def makeRowPart4Field2 (record, tg, subtags=[], concatFields=True, sep1='|', sep
         subfldstr=''    #if subfieldtags
         for fld in record.get_fields(tg):
             if subtags==[]:
-                if tg.startswidth('00'):
+                if tg.startswith('00'):
                     valstr= valstr + sep1 + fld.value()   #we want the exact string for positional fields
                 else:
                     valstr= valstr + sep1 + oneLineStr(fld.value())
@@ -200,7 +200,7 @@ def makeRowPart4Field2 (record, tg, subtags=[], concatFields=True, sep1='|', sep
         for fld in record.get_fields(tg):
             fieldval=[]
             if subtags==[]:
-                if tg.startswidth('00'):
+                if tg.startswith('00'):
                     fieldval.append(fld.value())   #we want the exact string for positional fields
                 else:
                     fieldval.append(oneLineStr(fld.value()))
