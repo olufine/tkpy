@@ -26,7 +26,7 @@ import sys
 repopath=os.path.abspath('../Gitrepos/tkpy')
 if repopath not in sys.path:
     sys.path.append(repopath)
-import konverter_v6
+import konverter_v7
 
 
 # In[1]:
