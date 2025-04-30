@@ -142,11 +142,25 @@ def transpose(lstlst):
         result.append(comp)    
     return result    
 
-    
+def modifyString(origstr, newpart, start, fillchar=' '):
+    #Returns a new string based on origstr, such that newpart starts at start in the result
+    if start < len(origstr)-len(newpart):
+        #newpart is to be inserted in the middle
+        res=origstr[0:start]+newpart+origstr[start+len(newpart):]
+    elif start < len(origstr):
+        #newpart replaces the end, and possibly extends the string
+        res=origstr[0:start]+newpart
+    else:
+        #start is larger that length of origstr. Fill up with fillchar until position=start
+        res=origstr+fill*(start-len(origstr))+newpart 
+    return res
 
-
-# In[ ]:
-
-
-
+def fillz(strn, l, fillchar=' '):
+    #Returns a string of length l, starting with strn and filled with fillchar
+    #If l is <= lenth of strn, return strn
+    nfill= l-len(strn)
+    if nfill>0:
+        return strn+nfill*fillchar
+    else:
+        return strn
 

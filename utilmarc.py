@@ -3,7 +3,7 @@
 
 # # Utils for marc record sets 
 
-# In[ ]:
+# In[1]:
 
 
 from io import StringIO
@@ -24,7 +24,7 @@ import pdb
 import traceback
 
 
-# In[4]:
+# In[3]:
 
 
 def unionRecords(*recordSets, form=0):
@@ -171,6 +171,19 @@ def overlap(bibl1, codebibl2):
     else:
         result= []
     return result
+
+def replaceControlField(record, fild, newVal):
+    # field must be a fild of type positional (00X) in record.
+    # For replacing Leader, use replaceLeader
+    #Removes fild from record
+    #Adds a new field with same tag as fild but new value newVal
+    newFld=Field(tag=fild.tag, data=newVal)
+    record.remove_field(fild)
+    record.add_ordered_field(newFld)
+    
+def replaceLeader(record, newLdrVal):
+    #Assigns new value to the leader
+    record.leader=newLdrVal
 
 
 # In[ ]:
