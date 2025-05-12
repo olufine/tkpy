@@ -27,7 +27,7 @@ import utils
 from utils import oneLineStr
 
 
-# In[1]:
+# In[3]:
 
 
 def writeMarcToFile(marcrecs, filename):
@@ -37,6 +37,21 @@ def writeMarcToFile(marcrecs, filename):
     for rec in marcrecs:
         writer.write(rec)
     writer.close()
+
+def writeMarcToFileMRC(marcrecs, filename):
+    #marcrecs is a list of pymarc record objects
+    #writes it as ISO format to filename (.mrc file)
+    writer = MARCWriter(open(filename, 'wb'))
+    for rec in marcrecs:
+        writer.write(rec)
+    writer.close()
+
+def readMRC(filename, mode='rb'):
+    reader=MARCReader(open(filename, mode=mode))
+    recs=[]
+    for rec in reader:
+        recs.append(rec)
+    return recs
 
 def showMarcRecord(marcrec):
     #prints the value of all fields
