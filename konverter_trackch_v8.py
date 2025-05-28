@@ -145,9 +145,10 @@ def markmodified (oldGraph, newGraph, dtm=datetime.now()):
     #The graph of updates (set of triples that reside in one graph, but not in both)
     updates=oldGraph^newGraph    #updates is a Graph
     updates.remove((None, DCTERMS.created, None))
-    updated=subjectlist(updates)  #Cannot use entities, as the type triples are not necessarily included there
+    updated=subjectlist(updates)  #Cannot use entities, as the TYPE triples are not necessarily included there
     #Do any entities exist only in the old Graph?
-    nolongerIncluded=list(set(updated).difference(set(entities(newGraph, SKOS.Concept))))
+    entitiesInNew=entities(newGraph, SKOS.Concept) + entities(newGraph, SKOS.ConceptScheme)
+    nolongerIncluded=list(set(updated).difference(set(entitiesInNew)))
     #Some of them may have been deprecated earlier
     deprecated=[]
     for d in nolongerIncluded:
