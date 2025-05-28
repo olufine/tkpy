@@ -74,6 +74,7 @@ def konverter(filnavn, sistpublisert, konfignavn, konfigsti, utfilsti):
     #Les inn grafen (med oppdaterte URI-er) på nytt og rydd opp språk-tagger, dct:modified og owl:deprecated
     new_gr=Graph()
     new_gr.parse('tmp2.ttl', format='n3')
+    #Les inn sist publiserte versjon av vokabularet (fra nbvok)
     prev_gr=Graph()
     prevsource='https://api.nb.no/nbvok/rest/v1/' + sistpublisert + '/data'
     prev_gr.parse(prevsource, format='n3')
@@ -309,12 +310,13 @@ if __name__ == "__main__":
         rdffilnavn = sys.argv[1]
         sistpublisert = sys.argv[2]
         konfignavn = sys.argv[3].split('.')[0]
+        grafnavn= konfignavn.split('_')[0]
         utfilsti = sys.argv[4] if len(sys.argv) > 4 else ""
         konfigsti = sys.argv[5] if len(sys.argv) > 5 else ""
-        print (rdffilnavn, konfignavn, konfigsti, utfilsti)
-        konverter(rdffilnavn, sistpublisert, konfignavn, konfigsti, utfilsti)
+        print (rdffilnavn, konfignavn, grafnavn, konfigsti, utfilsti)
+        konverter(rdffilnavn, grafnavn, konfignavn, konfigsti, utfilsti)
     except IndexError:
-        print ("FEIL: Mangler argumenter: rdf-fil, sist publiserte versjon, konfigurasjon, utfilsti, konfigsti")
+        print ("FEIL: Mangler argumenter: rdf-fil, grafnavn, konfigurasjon, utfilsti, konfigsti")
     except:
         print("FEIL:", sys.exc_info()) 
     finally:
