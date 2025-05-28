@@ -312,7 +312,7 @@ if __name__ == "__main__":
         print (rdffilnavn, konfignavn, konfigsti, utfilsti)
         konverter(rdffilnavn, sistpublisert, konfignavn, konfigsti, utfilsti)
     except IndexError:
-        print ("FEIL: Mangler argumenter: rdf-fil, konfigurasjon, , utfilsti, konfigsti")
+        print ("FEIL: Mangler argumenter: rdf-fil, sist publiserte versjon, konfigurasjon, utfilsti, konfigsti")
     except:
         print("FEIL:", sys.exc_info()) 
     finally:
