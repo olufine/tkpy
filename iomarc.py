@@ -8,7 +8,7 @@
 
 from io import StringIO
 import pymarc
-from pymarc import Record, marcxml, Field, XMLWriter
+from pymarc import Record, marcxml, Field, XMLWriter, MARCReader
 # debugging
 import pdb
 import traceback
