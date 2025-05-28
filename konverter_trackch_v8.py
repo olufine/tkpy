@@ -25,6 +25,7 @@ import skosify
 import re
 import datetime
 from datetime import datetime
+import sys
 
 
 def konverter(filnavn, sistpublisert, konfignavn, konfigsti, utfilsti):
