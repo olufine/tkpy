@@ -81,7 +81,8 @@ def subfieldCounter(records, fieldtags, subfieldtags, delimiter='$'):
     return cnt
 
 def subfieldCounter2(records, delimiter='$'):
-    #calculates the occurrences of all subfields in all fields in records.
+    #Updated March 2025
+    #calculates the number of occurrences of all subfields in all fields in records.
     #Also erroneous tags are counted
     #records is a list of pymarc.Record objects
     #returns a Counter object
@@ -601,9 +602,25 @@ def strippedValue (record, fieldtag, subfieldtag, prefix='(EXLNZ-47BIBSYS_NETWOR
     return result            
 
 
-
 # In[ ]:
 
 
+def recordsRepeatedField(records, fieldtag):
+    #Returns the records (as a list) that contains more than one occurrence of fieldtag
+    result=[]
+    for rec in records:
+        if len(rec.get_fields(fieldtag))>1:
+            result.append(rec)
+    return result
 
+def recordsRepeatedSubfield(records, fieldtag, subfieldtag):
+    #Returns the records (as a list) that contains fields with tag=fieldtag 
+    # with more than one occurrence of subfiledtag
+    result=[]
+    for rec in records:
+        for fld in rec.get_fields(fieldtag):
+            if len(fld.get_subfields(subfieldtag))>1:
+                result.append(rec)
+    #the above for-loop might include some recs more than once
+    return list(set(result))
 
