@@ -601,26 +601,3 @@ def strippedValue (record, fieldtag, subfieldtag, prefix='(EXLNZ-47BIBSYS_NETWOR
                 result=v[0][len(prefix):]
     return result            
 
-
-# In[ ]:
-
-
-def recordsRepeatedField(records, fieldtag):
-    #Returns the records (as a list) that contains more than one occurrence of fieldtag
-    result=[]
-    for rec in records:
-        if len(rec.get_fields(fieldtag))>1:
-            result.append(rec)
-    return result
-
-def recordsRepeatedSubfield(records, fieldtag, subfieldtag):
-    #Returns the records (as a list) that contains fields with tag=fieldtag 
-    # with more than one occurrence of subfiledtag
-    result=[]
-    for rec in records:
-        for fld in rec.get_fields(fieldtag):
-            if len(fld.get_subfields(subfieldtag))>1:
-                result.append(rec)
-    #the above for-loop might include some recs more than once
-    return list(set(result))
-

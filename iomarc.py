@@ -93,36 +93,40 @@ def printFieldss(records, fldtags):
 
 #Making spreadsheet reports from marc records based on a spec in form of a dict
 #examplespec:{'001':[], '100':['a', 'd'], '245:['a', 'b', 'c']}
+#eksempelspek colSpec: {'001':False, '100':True, '245:False}
 
-def colNames (fieldSpec, sepSubfields=True):
+def colNames (fieldSpec, colSpec):
     #fieldspec is a dict specifying fields and subfields (by their tags) in a report 
+    #colSpec is a dict with the same keys as fieldSpec, but with values True or False, indicating whether subfields of the fieldtag 
+    #        (fieldSpec[<fieldtag>] are to be listed in separate columns or concatenated into the same column
     #Ex: {'001':[], '245':['a', 'b', 'c']]
     #Returns a tuple of column headings, for the example above: ('f001', 'f245a', 'f245b', 'f245c')
     res=[]
-    for k in fieldSpec.keys():
-        if fieldSpec[k]==[] or sepSubfields is not True:
-            res.append('f'+ k)
-        else:
-            for stag in fieldSpec[k]:
-                res.append('f' + k + stag)
-    return tuple(res)
+    if set(fieldSpec.keys()) == set(colSpec.keys()):
+        for k in fieldSpec.keys():
+            if fieldSpec[k]==[] or colSpec[k] is not True:
+                res.append('f'+ k)
+            else:
+                for stag in fieldSpec[k]:
+                    res.append('f' + k + stag)
+        return tuple(res)
 
-def makeRows4FieldSpec (record, tagSpec, rowUnit='001', sepSubfields=True):
+def makeRows4FieldSpec (record, tagSpec, colSpec, rowUnit='001'):
     #tagSpec is a dict with fieldtags as keys, values are a list of subtags, specifying the information to be returned
     #rowUnit indicates the field which occurrences constitute a row/tuple
     #rowUnit='001' implies 1 record per row. 
-    #sepSubfields indicates whether subfileds are to be listed in separate columns or the whole field value in same column
+    #colSpec is a dict with the same keys as tagSpec, but with values True or False, indicating whether subfields of the fieldtag 
+    #        (tagSpec[<fieldtag>] are to be listed in separate columns or concatenated into the same column
     #if rowUnit indicates a repeatable field, each occurrence of rowUnit in record constitutes a row. 
     #Values of any other fieldsXsubfiields in tagSpec are concatenated on one row.
     #Returns a list of n tuples (rows) representing record as specified by tagSpec. n is the number of occurrences of rowUnit in record.
     rows=[]  #Number of rows returned
-
-    runit=makeRowPart4Field1(record, rowUnit, tagSpec[rowUnit], concatFields=False) if sepSubfields is True else makeRowPart4Field2(record, rowUnit, tagSpec[rowUnit], concatFields=False)
+    runit=makeRowPart4Field1(record, rowUnit, tagSpec[rowUnit], concatFields=False) if colSpec[rowUnit] is True else makeRowPart4Field2(record, rowUnit, tagSpec[rowUnit], concatFields=False)
     for i in range(0,len(runit)):
         row=[]
         for k in tagSpec.keys():
             if k!=rowUnit:
-                row.extend(makeRowPart4Field1(record, k, tagSpec[k], concatFields=True)) if sepSubfields is True else row.extend(makeRowPart4Field2(record, k, tagSpec[k], concatFields=True))
+                row.extend(makeRowPart4Field1(record, k, tagSpec[k], concatFields=True)) if colSpec[k] is True else row.extend(makeRowPart4Field2(record, k, tagSpec[k], concatFields=True))
             else:
                 row.append(runit[i])
         #Each row now contains 1 tuple per fieldtag (tagSpec.keys()).

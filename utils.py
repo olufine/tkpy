@@ -164,3 +164,15 @@ def fillz(strn, l, fillchar=' '):
     else:
         return strn
 
+def join(tabell, topos, frompos):
+    #for all rows in tabell: if topos is '', move the value in frompos to topos
+    #Brukes bl.a. til å merge 260 med 264 i eksport av Marcposter
+    tbl=[]
+    for rw in tabell:
+        new=list(rw)
+        if new[topos]=='':
+            new[topos]=new[frompos]
+            new[frompos]=''
+        tbl.append(tuple(new))
+    return tbl
+
