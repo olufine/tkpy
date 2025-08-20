@@ -98,6 +98,20 @@ def readCsvRows(csvfile, encoding='utf-8', delim=';'):
         f.close
     return content
     
+def writeDictAsJson(datadict, filename, indent=4, sort_keys=False):
+    #writes a dict to a file
+    #datadict is a dict
+    with open(filename, 'w') as f:
+        json.dump(datadict, f, indent=indent, sort_keys=sort_keys)
+        f.close()
+
+def writeall(fname, content, encoding='utf-8'):
+    #writes content to file
+    #assumes the content is formatted correctly
+     with open(fname, 'w', encoding=encoding) as f:
+        f.write(content)
+        f.close()
+
 def key(elt):
     return elt[0][0]    
 

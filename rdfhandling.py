@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Graph functions
+# # RDF handling
 
 # In[1]:
 
@@ -26,7 +26,7 @@ import sys
 repopath=os.path.abspath('../Gitrepos/tkpy')
 if repopath not in sys.path:
     sys.path.append(repopath)
-import konverter_v7
+import konverter_v7, iogeneral, utils
 
 
 # In[1]:
@@ -188,54 +188,6 @@ def allpropertyTypes(graph, uri=False):
     #returns a list of all distinct properties used in the graph
     return propertyTypes(graph, None, uri=uri)
 
-
-def relatedInfo(graph, entities):
-    #Extracts information about related entities to each entity in entities
-    #returns a list of tuples
-    tbl=[('Opus', 'Title', 'Related entity', 'Relation')]
-    for ent in entities:
-        for r in allrelated(graph, ent):
-            tbl.append((ent, bestTitleLiteral(graph, ent), r, relation(graph, ent, r)[0]))
-    return tbl
-
-def contributionInfo(graph, entity):
-    #Extracts information about contributors of entity (which is typically an Opus, Expression or Instance)
-    tbl=[('Contribution','Agent','Name', 'AgentType', 'Role')]
-    contributions=related(graph, entity , URIRef('http://id.loc.gov/ontologies/bibframe/contribution'))
-    for contr in contributions:
-        agent=related(graph, contr , URIRef('http://id.loc.gov/ontologies/bibframe/agent'))
-        if agent!=[]:
-            name=related(graph, agent[0] , RDFS.label)
-            tp=related(graph, agent[0], RDF.type)
-            role=related(graph, contr, URIRef('http://id.loc.gov/ontologies/bibframe/role'))
-            tbl.append((contr,agent[0],name, tp, role))
-    return tbl    
-   
-    
-
-def languageInfo(graph, entity):
-    #Returns a list of tuples containing the properties (value, label, code, part)
-    #of each language entity connected to entity
-    #entity is most often an expression (svde:Work) or bf:Work
-    langs=[]
-    uniqlangs=list(set(list(graph.objects(entity, URIRef('http://id.loc.gov/ontologies/bibframe/language')))))
-    for ul in uniqlangs:
-        langinfo=[]
-        vals=list(graph.objects(ul,URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#value')))
-        lbls=list(graph.objects(ul,URIRef('http://www.w3.org/2000/01/rdf-schema#label')))
-        codes=list(graph.objects(ul,URIRef('http://id.loc.gov/ontologies/bibframe/code')))
-        parts=list(graph.objects(ul,URIRef('http://id.loc.gov/ontologies/bibframe/part')))
-        if vals != []:
-            langinfo.append(('value: ', vals))
-        if lbls!= []:
-            langinfo.append(('label: ', lbls ))
-        if codes!= []:
-            langinfo.append(('code:  ', codes ))
-        if parts!= []:
-            langinfo.append(('part:  ', parts ))
-        langs.append(langinfo)    
-    return langs    
-        
 def entities(graph, entityType):
     #Returns a list of distinct entities of the given type in graph
     entityRefs=[]
@@ -285,8 +237,142 @@ def typeOf(graph, entity):
     #if the type string is desired, use entityTypes
     return list(graph.objects(entity, RDF.type))
 
+def inverseRelated (graph, entity, relation):
+    #returns the entities in g related to entity by relation
+    related=[]
+    for ent in graph.subjects(relation, entity):
+        related.append(ent)
+    return list(set(related))
+
+## Get entities directly related to a given entity (use when you know the subject of a triple)
+def relatedInverse (graph, entity, relation):
+    #returns the entities in g for which entity is related by relation
+    #would give the same result as related(graph, entity, InverseOf(relation))
+    related=[]
+    for ent in graph.subjects(relation, entity):
+        related.append(ent)
+    return list(set(related))
+
+def traverseRelated(graph, entity, relation):
+    #returns a list of all entities obtained when traversing relation from entity
+    #until dead ends
+    #Used to collect all noed in a subtree headed by entity
+    nodes=related (graph, entity, relation) #first level
+    for node in nodes:
+         nodes.extend(traverseRelated(graph, node, relation))
+    return list(set(nodes))
+
+## Get entities which a given entity is related to  AND included in entDomain 
+def findClosest(graph, entity, relation, entDomain):
+    #returns the entities in g related to entity by relation (directly or indirectly) AND included in entDoamin
+    #Similar to traverseRelated, but only return nodes that are in entDomain
+    closest=[]
+    for ent in related(graph, entity, relation):
+        if ent in entDomain:
+            closest.append(ent)
+        else:
+            closest.extend(findClosest(graph, ent, relation, entDomain))
+    return list(set(closest))
+
+## Get entities which a given entity is related to  AND included in entDomain 
+def findClosestInverse(graph, entity, relation, entDomain):
+    #returns the entities in g for which entity is related by relation (directly or indirectly)AND included in entDoamin
+    #Similar to traverseRelated, but only return nodes that are in entDomain
+    closest=[]
+    for ent in relatedInverse(graph, entity, relation):
+        if ent in entDomain:
+            closest.append(ent)
+        else:
+            closest.extend(findClosestInverse(graph, ent, relation, entDomain))
+    return list(set(closest))
+
+def entitiesWname(graph, name, nameprop=RDFS.label, lang='no'):
+    #Returns a list of distinct entities with name=name
+    entityRefs=[]
+    for ent in graph.subjects(nameprop, Literal(name, lang=lang)):
+        entityRefs.append(ent)
+    return list(set(entityRefs))
+
+## Get entities directly related to entities of a given type
+def related2typesByRelation (graph, entitytype, relation):
+    #returns the entities in g related to entity by relation
+    rel=[]
+    for ent in entities(graph, entitytype):
+        rel.extend(related(graph, ent, relation))
+    return list(set(rel))
+
+##Get entities with a certain value on a property
+def withValue(graph, relation, val):
+    wValue=[]
+    for ent in graph.subjects(relation, val):
+        wValue.append(ent)
+    return list(set(wValue))
+
+##Get entities of a given type which have some value on a property
+def withSomeValue(graph, entType, relation):
+    wValue=[]
+    for ent in entities(graph, entType):
+        if related(graph, ent, relation)!=[]:
+            wValue.append(ent)
+    return list(set(wValue))
+
  
 
+
+# # BIBFRAME-related
+
+# In[ ]:
+
+
+def relatedInfo(graph, entities):
+    #Extracts information about related entities to each entity in entities
+    #returns a list of tuples
+    tbl=[('Opus', 'Title', 'Related entity', 'Relation')]
+    for ent in entities:
+        for r in allrelated(graph, ent):
+            tbl.append((ent, bestTitleLiteral(graph, ent), r, relation(graph, ent, r)[0]))
+    return tbl
+
+def contributionInfo(graph, entity):
+    #Extracts information about contributors of entity (which is typically an Opus, Expression or Instance)
+    tbl=[('Contribution','Agent','Name', 'AgentType', 'Role')]
+    contributions=related(graph, entity , URIRef('http://id.loc.gov/ontologies/bibframe/contribution'))
+    for contr in contributions:
+        agent=related(graph, contr , URIRef('http://id.loc.gov/ontologies/bibframe/agent'))
+        if agent!=[]:
+            name=related(graph, agent[0] , RDFS.label)
+            tp=related(graph, agent[0], RDF.type)
+            role=related(graph, contr, URIRef('http://id.loc.gov/ontologies/bibframe/role'))
+            tbl.append((contr,agent[0],name, tp, role))
+    return tbl    
+   
+    
+
+def languageInfo(graph, entity):
+    #Returns a list of tuples containing the properties (value, label, code, part)
+    #of each language entity connected to entity
+    #entity is most often an expression (svde:Work) or bf:Work
+    langs=[]
+    uniqlangs=list(set(list(graph.objects(entity, URIRef('http://id.loc.gov/ontologies/bibframe/language')))))
+    for ul in uniqlangs:
+        langinfo=[]
+        vals=list(graph.objects(ul,URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#value')))
+        lbls=list(graph.objects(ul,URIRef('http://www.w3.org/2000/01/rdf-schema#label')))
+        codes=list(graph.objects(ul,URIRef('http://id.loc.gov/ontologies/bibframe/code')))
+        parts=list(graph.objects(ul,URIRef('http://id.loc.gov/ontologies/bibframe/part')))
+        if vals != []:
+            langinfo.append(('value: ', vals))
+        if lbls!= []:
+            langinfo.append(('label: ', lbls ))
+        if codes!= []:
+            langinfo.append(('code:  ', codes ))
+        if parts!= []:
+            langinfo.append(('part:  ', parts ))
+        langs.append(langinfo)    
+    return langs    
+
+
+# # Brukt i nbvok
 
 # In[6]:
 
@@ -328,6 +414,8 @@ def removeConcepts(g, concepts):
         g.remove((None,None,c))
 
 
+# # Labler
+
 # In[1]:
 
 
@@ -357,7 +445,7 @@ def altLabel(graph, entity, lang):
             alt=al
     return alt
 
-def label(graph, entity, lang):
+def label1(graph, entity, lang):
     #returns the last RDFS.label of entity in the lang language, 
     #or None if no label in lang is there
     labl=None
@@ -365,6 +453,28 @@ def label(graph, entity, lang):
         if lbl.language == lang:
             labl=lbl
     return labl
+
+def label2(graph, entity, lang='en'):
+    #returns the first RDFS.label of entity in the lang language, 
+    #or None if no label in lang is there
+    found=False
+    i=0
+    lbl=None
+    labels=related(graph,entity, RDFS.label)   #list of literals
+    while found==False and i<len(labels):
+        if labels[i].language == lang:
+            found=True
+            lbl=str(labels[i])
+        else:
+            i+=1
+    return lbl        
+
+        
+    
+
+
+# In[ ]:
+
 
 def exactMatches(graph, lang):
     #return a list of concepts which are exact matches to some other concept
@@ -376,13 +486,4 @@ def exactMatches(graph, lang):
         if prefLabel(graph, m, lang) is not None:
             res.append(m)
     return res
-    
-        
-    
-
-
-# In[ ]:
-
-
-
 
