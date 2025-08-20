@@ -416,7 +416,7 @@ def removeConcepts(g, concepts):
 
 # # Labler
 
-# In[1]:
+# In[6]:
 
 
 def idNum(entity):
@@ -445,8 +445,8 @@ def altLabel(graph, entity, lang):
             alt=al
     return alt
 
-def label1(graph, entity, lang):
-    #returns the last RDFS.label of entity in the lang language, 
+def labelLit(graph, entity, lang):
+    #returns the last RDFS.label of entity in the lang language, as a Literal
     #or None if no label in lang is there
     labl=None
     for lbl in graph.objects(entity, RDFS.label):
@@ -454,12 +454,12 @@ def label1(graph, entity, lang):
             labl=lbl
     return labl
 
-def label2(graph, entity, lang='en'):
-    #returns the first RDFS.label of entity in the lang language, 
-    #or None if no label in lang is there
+def label(graph, entity, lang='en'):
+    #returns the first RDFS.label of entity in the lang language, as a string
+    #or '' if no label in lang is there
     found=False
     i=0
-    lbl=None
+    lbl=''
     labels=related(graph,entity, RDFS.label)   #list of literals
     while found==False and i<len(labels):
         if labels[i].language == lang:
