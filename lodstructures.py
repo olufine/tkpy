@@ -59,7 +59,7 @@ from rdflib.plugins.serializers import n3, rdfxml, turtle
 from SPARQLWrapper import SPARQLWrapper, JSON, XML, CSV, RDFXML, TURTLE, JSONLD
 
 from IPython.display import display, display_pretty, display_html, HTML
-from graphviz import Digraph
+#from graphviz import Digraph
 import skosify
 
 
