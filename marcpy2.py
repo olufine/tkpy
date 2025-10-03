@@ -4,7 +4,7 @@
 # # Functions for Marc handling - 2
 # 
 
-# In[5]:
+# In[1]:
 
 
 from pprint import pprint as pp
@@ -36,7 +36,7 @@ import marcpy1
 from marcpy1 import fieldValue, similar
 
 
-# In[1]:
+# In[2]:
 
 
 def select(records, fieldtag, values, subfields=None,  compMethod=0, cutoff=0.9, compReq='all' ):
@@ -295,6 +295,7 @@ def recordsRepeatedSubfield(records, fieldtag, subfieldtag):
 def indexRecords(records):
     #Return a dict with MMsIds as keys and its record as value
     #To be used for efficient retrieval of single records
+    #duplicates (i.e. same MMS id) will be ignored (overwritten)
     indx=dict()
     for rec in records:
         ide=rec.get_fields('001')[0].value()
@@ -375,6 +376,62 @@ def indexRecords2ByControlField(records, fieldtag, slice=None, leadertag='000'):
     for k in indx.keys():
         indx[k]=list(set(indx[k]))
     return indx
+
+
+# ### Indexing with multiple fields and subfields
+
+# In[3]:
+
+
+#Indeksering etter flere felt og subfelt
+
+def indexRecords4(records, keySpec, sep='$'):
+    #keySpec is a dict specifying the indexing criterium: fieldtags as keys, subfieldtags as values
+    #Ex: {'100':['a', 'd'], '245':['a']}
+    #Return a dict with value of fieldtag+subfieldtags in keySpec as key, and the list of matching records as value
+    #Like indexRecords2 but allowing for a combination of fields to be used as keys, not just one type
+    indx=dict()
+    for rec in records:
+        rkeys=indexKeys(rec, keySpec)
+        for rkey in rkeys:
+            if rkey != '':
+                if rkey in indx.keys():
+                    indx[rkey].append(rec)
+                else:
+                    indx[rkey]=[rec]
+    #remove duplicates
+    for k in indx.keys():
+        indx[k]=list(set(indx[k]))
+    return indx
+
+def indexKeys(record, keySpec, sep='$'):
+    #keySpec is a dict specifying the indexing criterium: fieldtags as keys, subfieldtags as values
+    #Ex: {'100':['a', 'd'], '245':['a']}
+    #Return a list of strings corresponding to record's value(s) of fields and subfields in keySpec
+    #If all fields (keys) in keySpec occur only once in record, only one indexkey is created, i.e. a list of one string is returned
+    indx=dict()
+    list1=[]
+    for fieldtag in keySpec.keys():
+        subfieldtags=keySpec[fieldtag]
+        #print(fieldtag, subfieldtags)
+        flds=record.get_fields(fieldtag)
+        rkeys=[]
+        for fld in flds:
+            if subfieldtags==[]:    #no specific subfield
+                rkeys.append(fld.value())
+            else:
+                if fld.get_subfields(*subfieldtags) != []:
+                    rkeys.append(sep.join(fld.get_subfields(*subfieldtags)))
+        if rkeys!=[]:          #rkeys may be [] if fld is not in record
+            if list1==[]:
+                list1=rkeys
+            else:
+                list2=[]
+                for keypref in list1:
+                    for keysuf in rkeys:
+                        list2.append(sep.join([keypref, keysuf])) #erstatt foreløpig key med en utvidet
+                list1=list2
+    return list1
 
 
 # In[ ]:

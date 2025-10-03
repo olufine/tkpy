@@ -41,7 +41,7 @@ repopath=os.path.abspath('../Gitrepos/tkpy')
 if repopath not in sys.path:
     sys.path.append(repopath)
 import iogeneral, rdfhandling, utils
-from rdfhandling import inverseRelated, findClosest, findClosestInverse, label1, label2, related
+from rdfhandling import inverseRelated, findClosest, findClosestInverse, labelLit, label, related
 
 
 # In[2]:

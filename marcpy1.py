@@ -41,7 +41,7 @@ from utils import trim
 #import iogeneral
 
 
-# In[2]:
+# In[1]:
 
 
 from pymarc import Record, marcxml, Field
@@ -285,7 +285,7 @@ def leaderValues (records, slice=None):
     # if slice is None, the whole leader is extracted
     values = []
     for rec in records:
-        ldr= rec.leader
+        ldr= str(rec.leader)
         if slice is None:
             values.append(ldr)
         elif isinstance(slice, tuple):
@@ -600,4 +600,10 @@ def strippedValue (record, fieldtag, subfieldtag, prefix='(EXLNZ-47BIBSYS_NETWOR
             if v[0].startswith(prefix) == True:
                 result=v[0][len(prefix):]
     return result            
+
+
+# In[ ]:
+
+
+
 
