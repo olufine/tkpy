@@ -133,7 +133,7 @@ def multipleSubFields (records, fieldtag, subfieldtag):
     return (list(set(res)))
 
 def isbnNorm(record, sep='-'):
-    #Returns a normalised version of the first isbn (020)
+    #Returns a normalised version of the *first* isbn (020)
     isbn=''
     isbns=[]
     for f in record.get_fields('020'):
@@ -173,7 +173,7 @@ def overlap(bibl1, codebibl2):
     return result
 
 def replaceControlField(record, fild, newVal):
-    # field must be a fild of type positional (00X) in record.
+    # feld must be a field of type positional (00X) in record.
     # For replacing Leader, use replaceLeader
     #Removes fild from record
     #Adds a new field with same tag as fild but new value newVal
@@ -186,10 +186,40 @@ def replaceLeader(record, newLdrVal):
     record.leader=newLdrVal
 
 
-# In[ ]:
+# In[1]:
 
 
+#***ISBN handling: Normalization and convertion to long number
 
+def removeSep(s, sep='-'):
+    return ''.join(list(map(lambda x: x.strip(), s.split(sep))))
+
+def normalizedISBN(s, sep='-'):
+    return removeSep(s, sep=sep).upper().replace('O', '0')   #prevents interrupt when ISBN includes an O  or o instead of xero
+
+def isbnConvert10to13(isbn, sep='-'):
+    #Converts a 10 digit's ISBN to 13 digits. If illegal characters in ISBN, None is returned
+    i=normalizedISBN(isbn, sep='-')
+    if len(i)==10:
+        i='978'+i[0:-1]   #Legg til 978 og Fjern kontrollnr
+        #Finn nytt koontrollnr
+        chsm=0
+        for k in range(0,12,2):
+            if i[k].isdigit():
+                chsm+=int(i[k])
+            else:
+                return None
+        #print(chsm)
+        for k in range(1,12,2):
+            #print(int(i[k]))
+            if i[k].isdigit():
+                chsm+=3*int(i[k])
+            else:
+                return None
+        #ktrl er tallet som må til for å få summen chsm til multiplum av 10
+        ktrl=0 if (chsm % 10) == 0  else 10-(chsm % 10)
+        i+=str(ktrl)
+    return i       
 
 
 # In[ ]:
