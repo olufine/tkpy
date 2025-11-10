@@ -147,11 +147,10 @@ def markmodified (oldGraph, newGraph, dtm=datetime.now()):
     updates=oldGraph^newGraph    #updates is a Graph
     updates.remove((None, DCTERMS.created, None))
     updated=subjectlist(updates)  #Cannot use entities, as the TYPE triples are not necessarily included there
-    #Do any entities exist only in the old Graph?  Only consider Concept, not ConceptScheme
-    #10.11.2025 (fungerer nå likt som _v7
-    #entitiesInNew=entities(newGraph, SKOS.Concept) + entities(newGraph, SKOS.ConceptScheme)
-    #nolongerIncluded=list(set(updated).difference(set(entitiesInNew)))
-    nolongerIncluded=list(set(updated).difference(set(entities(newGraph, SKOS.Concept))))
+    #Do any entities exist only in the old Graph? 
+    entitiesInNew=entities(newGraph, SKOS.Concept) + entities(newGraph, SKOS.ConceptScheme)
+    nolongerIncluded=list(set(updated).difference(set(entitiesInNew)))
+    #nolongerIncluded=list(set(updated).difference(set(entities(newGraph, SKOS.Concept))))
     #Some of them may have been deprecated earlier
     deprecated=[]
     for d in nolongerIncluded:
