@@ -147,9 +147,11 @@ def markmodified (oldGraph, newGraph, dtm=datetime.now()):
     updates=oldGraph^newGraph    #updates is a Graph
     updates.remove((None, DCTERMS.created, None))
     updated=subjectlist(updates)  #Cannot use entities, as the TYPE triples are not necessarily included there
-    #Do any entities exist only in the old Graph?
-    entitiesInNew=entities(newGraph, SKOS.Concept) + entities(newGraph, SKOS.ConceptScheme)
-    nolongerIncluded=list(set(updated).difference(set(entitiesInNew)))
+    #Do any entities exist only in the old Graph?  Only consider Concept, not ConceptScheme
+    #10.11.2025 (fungerer nå likt som _v7
+    #entitiesInNew=entities(newGraph, SKOS.Concept) + entities(newGraph, SKOS.ConceptScheme)
+    #nolongerIncluded=list(set(updated).difference(set(entitiesInNew)))
+    nolongerIncluded=list(set(updated).difference(set(entities(newGraph, SKOS.Concept))))
     #Some of them may have been deprecated earlier
     deprecated=[]
     for d in nolongerIncluded:
@@ -308,11 +310,11 @@ if __name__ == "__main__":
 
     try:
         rdffilnavn = sys.argv[1]
-        sistpublisert = sys.argv[2]
-        konfignavn = sys.argv[3].split('.')[0]
+        #sistpublisert = sys.argv[2]
+        konfignavn = sys.argv[2].split('.')[0]
         grafnavn= konfignavn.split('_')[0]
-        utfilsti = sys.argv[4] if len(sys.argv) > 4 else ""
-        konfigsti = sys.argv[5] if len(sys.argv) > 5 else ""
+        utfilsti = sys.argv[3] if len(sys.argv) > 3 else ""
+        konfigsti = sys.argv[4] if len(sys.argv) > 4 else ""
         print (rdffilnavn, konfignavn, grafnavn, konfigsti, utfilsti)
         konverter(rdffilnavn, grafnavn, konfignavn, konfigsti, utfilsti)
     except IndexError:
