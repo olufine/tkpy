@@ -24,7 +24,7 @@ import pdb
 import traceback
 
 
-# In[3]:
+# In[1]:
 
 
 def unionRecords(*recordSets, form=0):
@@ -149,6 +149,7 @@ def nzMmsId(record):
         return ide
     else:
          for fld in record.get_fields('035'):
+             if fld.get_subfields('a') !=[]:
                 f35=fld.get_subfields('a')[0]
                 if '(EXLNZ-47BIBSYS_NETWORK)' in f35:
                     ide=f35.partition(')')[2]    #strip off the EXLNZ... prefix
