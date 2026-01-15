@@ -92,6 +92,7 @@ def termsWdollar2(records, fieldtag, sourcecode):
 
 def duplicateFields (f1, f2, compare=['a', '2'], comparetag=True):
     #Generalisering av duplicate655
+    #OBS: Sjekker ikke indikatorer (felt med samme innhold (samme tag, samme delfelt) bør ikke forekomme)
     #If compareTag=True: Returns True iff f1 and f2 have equal tag and have exactly the same values on subfields listed in compare
     #If comaperTag=False:Returns True iff f1 and f2 have xactly the same values on subfields listed in compare
     #       irrespective of field tag
@@ -121,6 +122,21 @@ def fieldInRecord(record,field, compare=['a', '2']):
         else:
             i+=1
     return found
+
+def duplicatefieldsInRecord(record,ftag,compare=['a', '2']):
+    # Somewhat similar to fieldInRecord, but instead of comparing an external field to 
+    # the ones in record, this function looks for duplicates (according to duplicateFields) 
+    # in the list record.get_fields(ftag)
+    # Returns a list of duplicates (Field entities with tag=ftag)
+    dupl=[]
+    flist=record.get_fields(ftag)
+    while len(flist)>1:
+        focusfld=flist[0]
+        for f in flist[1:]:
+            if utilmarc.duplicateFields(focusfld, f, compare, comparetag=False)== True:
+                dupl.append(f)
+        flist=flist[1:]
+    return list(set(dupl))
 
 def multipleSubFields (records, fieldtag, subfieldtag):
     #Returns a list of records in records that have more than 1 occurrence og subfieldtag in any fieldtag
