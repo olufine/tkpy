@@ -36,7 +36,7 @@ import marcpy1
 from marcpy1 import fieldValue, similar
 
 
-# In[2]:
+# In[1]:
 
 
 def select(records, fieldtag, values, subfields=None,  compMethod=0, cutoff=0.9, compReq='all' ):
@@ -302,8 +302,10 @@ def indexRecords(records):
         indx[ide]=rec
     return indx
 
-def indexRecords2(records, fieldtag, subfieldtags=None, sep='$'):
+def indexRecords2(records, fieldtag, subfieldtags=None, sep='$', norm=None):
     #Return a dict with value of fieldtag+subfieldtags as key, and the list of matching records as value
+    #if norm='lower', the index keys are converted to lowercase, similarly if norm='upper'
+    #if norm=None, the keys are fetched directly from the field value
     indx=dict()
     for rec in records:
         flds=rec.get_fields(fieldtag)
@@ -315,6 +317,11 @@ def indexRecords2(records, fieldtag, subfieldtags=None, sep='$'):
                 if fld.get_subfields(*subfieldtags) != []:
                     rkey=sep.join(fld.get_subfields(*subfieldtags))
             if rkey != '':
+                #normalize, if specified
+                if norm=='lower':
+                    rkey=rkey.lower()
+                elif norm=='upper':
+                    rkey=rkey.upper()
                 if rkey in indx.keys():
                     indx[rkey].append(rec)
                 else:
@@ -380,7 +387,7 @@ def indexRecords2ByControlField(records, fieldtag, slice=None, leadertag='000'):
 
 # ### Indexing with multiple fields and subfields
 
-# In[3]:
+# In[ ]:
 
 
 #Indeksering etter flere felt og subfelt
