@@ -152,7 +152,7 @@ def modifyString(origstr, newpart, start, fillchar=' '):
         res=origstr[0:start]+newpart
     else:
         #start is larger that length of origstr. Fill up with fillchar until position=start
-        res=origstr+fill*(start-len(origstr))+newpart 
+        res=origstr+fillchar*(start-len(origstr))+newpart 
     return res
 
 def fillz(strn, l, fillchar=' '):
@@ -175,4 +175,7 @@ def join(tabell, topos, frompos):
             new[frompos]=''
         tbl.append(tuple(new))
     return tbl
+
+def removeSep(s, sep='-'):
+    return ''.join(s.strip().split(sep))
 

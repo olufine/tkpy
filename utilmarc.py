@@ -242,5 +242,40 @@ def isbnConvert10to13(isbn, sep='-'):
 # In[ ]:
 
 
+# Retrieve publication country from 260a, 264a or 773d
+def getPublPlace(record):
+    #returnerer en streng med navn på utgiversted, enten fra 260a, 264a eller 773d
+    plname=''
+    pf=record.get_fields('260')
+    if pf != []:
+        pl=pf[0].get_subfields('a')
+        if pl!=[]:
+            plname=pl[0]
+    #try 264 if no result from 260
+    if plname=='':
+        pf=record.get_fields('264')
+        if pf != []:
+            pl=pf[0].get_subfields('a')
+            if pl!=[]:
+                plname=pl[0]
+    if plname=='':
+        plname=getPlaceIn773d(record)
+    return plname.strip()
 
+def getPlaceIn773d(record):
+    plname=''
+    pf=record.get_fields('773')
+    if pf != []:
+        pl=pf[0].get_subfields('d')    #place, publisher and date
+        if pl!=[]:
+            plname=pl[0].split(':')[0].strip()
+            #partion baset on comma: Only if some elements are numbers. Else the case may be e.g. Boston, Mass. which should be left unchanged
+            comps=plname.split(',')
+            #guesswork, but if digits, the second part is likely a year
+            if len(comps)>1: 
+                if comps[1].strip().isdigit()==True:
+                    plname=comps[0]
+                else:
+                    plname=comps[0]+', '+comps[1]
+    return plname.strip()
 
