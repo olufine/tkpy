@@ -411,33 +411,41 @@ def indexRecords4(records, keySpec, sep='$'):
         indx[k]=list(set(indx[k]))
     return indx
 
-def indexKeys(record, keySpec, sep='$'):
-    #keySpec is a dict specifying the indexing criterium: fieldtags as keys, subfieldtags as values
-    #Ex: {'100':['a', 'd'], '245':['a']}
+def indexKeys(record, keySpec, fsep='$', sfsep='£'):
+    #****Updated 23.6.2026, to better accomodate missing fields in some records***************
+    #keySpec is a dict specifying the indexing criterium: fieldtags as keys, subfieldtags 
+    #         or position tuples as values
+    #Ex: {'008':[(15,18), (7,8)], '100':['a', 'd'], '245':['a']}
     #Return a list of strings corresponding to record's value(s) of fields and subfields in keySpec
     #If all fields (keys) in keySpec occur only once in record, only one indexkey is created, i.e. a list of one string is returned
+    #If some fieldstag in keySpec is not represented in record, an empty string in the keystring represents that fact
+    #kystrings with n fsep occurrences in a row means that n-1 of keySpec.keys() are not represented in the record
     indx=dict()
     list1=[]
     for fieldtag in keySpec.keys():
-        subfieldtags=keySpec[fieldtag]
-        #print(fieldtag, subfieldtags)
+        fieldparts=keySpec[fieldtag]    #either subfieldtags or a tuple describing a range in a control field
+        #print(fieldtag, fieldparts)
         flds=record.get_fields(fieldtag)
         rkeys=[]
         for fld in flds:
-            if subfieldtags==[]:    #no specific subfield
+            if fieldparts==[]:    #no specific subfield  nor tuple
                 rkeys.append(fld.value())
             else:
-                if fld.get_subfields(*subfieldtags) != []:
-                    rkeys.append(sep.join(fld.get_subfields(*subfieldtags)))
-        if rkeys!=[]:          #rkeys may be [] if fld is not in record
-            if list1==[]:
-                list1=rkeys
-            else:
-                list2=[]
-                for keypref in list1:
-                    for keysuf in rkeys:
-                        list2.append(sep.join([keypref, keysuf])) #erstatt foreløpig key med en utvidet
-                list1=list2
+                if fieldtag.startswith('00'):    #position based field
+                    rkeys.append(sfsep.join(list(map(lambda x: fld.value()[x[0]:x[1]], keySpec[fieldtag]))))
+                else:
+                    if fld.get_subfields(*fieldparts) != []:
+                        rkeys.append(sfsep.join(fld.get_subfields(*fieldparts)))
+        if rkeys==[]:          #rkeys may be [] fieldtag has no occurrences in record.Then put in an empty string
+            rkeys.append('')
+        if list1==[]:    #first part of key
+            list1=rkeys
+        else:
+            list2=[]
+            for keypref in list1:
+                for keysuf in rkeys:
+                    list2.append(fsep.join([keypref, keysuf])) #erstatt foreløpig key med en utvidet
+            list1=list2
     return list1
 
 
