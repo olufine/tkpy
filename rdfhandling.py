@@ -29,7 +29,7 @@ if repopath not in sys.path:
 import konverter_v7, iogeneral, utils
 
 
-# In[1]:
+# In[2]:
 
 
 # import rdflib
@@ -129,7 +129,7 @@ def getBiblByCreator(gr, autURI):
 
 # # Graph functions
 
-# In[5]:
+# In[3]:
 
 
 def contextGraph(cGraph, context):
@@ -316,7 +316,10 @@ def withSomeValue(graph, entType, relation):
             wValue.append(ent)
     return list(set(wValue))
 
- 
+def deprecated (g, c, deprel=OWL.deprecated):
+    #returns True if the concepr c is deprecated (has property deprel=True), False otherwise
+    r=related(g, c, deprel)
+    return r!=[] and (str(r[0])== 'true' or str(r[0])== 'True') 
 
 
 # # BIBFRAME-related
@@ -416,7 +419,7 @@ def removeConcepts(g, concepts):
 
 # # Labler
 
-# In[6]:
+# In[13]:
 
 
 def idNum(entity):
@@ -469,7 +472,20 @@ def label(graph, entity, lang='en'):
             i+=1
     return lbl        
 
-        
+def toolkitLabel(graph, entity, lblprop, lang='en'):
+    #returns the first toolkitlabel of entity in the lang language, as a string
+    #or '' if no label in lang is there
+    found=False
+    i=0
+    lbl=''
+    labels=related(graph,entity, lblprop)   #list of literals
+    while found==False and i<len(labels):
+        if labels[i].language == lang:
+            found=True
+            lbl=str(labels[i])
+        else:
+            i+=1
+    return lbl               
     
 
 
