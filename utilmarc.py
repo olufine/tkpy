@@ -133,7 +133,7 @@ def duplicatefieldsInRecord(record,ftag,compare=['a', '2']):
     while len(flist)>1:
         focusfld=flist[0]
         for f in flist[1:]:
-            if utilmarc.duplicateFields(focusfld, f, compare, comparetag=False)== True:
+            if duplicateFields(focusfld, f, compare, comparetag=False)== True:
                 dupl.append(f)
         flist=flist[1:]
     return list(set(dupl))
