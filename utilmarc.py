@@ -202,6 +202,18 @@ def replaceLeader(record, newLdrVal):
     #Assigns new value to the leader
     record.leader=newLdrVal
 
+def addField(rec, ftag, subspec, inds=(' ', ' ')):
+    #Adds a new field ftag to rec.
+    #Subspec is a dict with subfirldtags as keys, subfields values as values
+    delfelt=[]
+    for tg in subspec.keys():
+        delfelt.append(Subfield(code=tg, value=subspec[tg]))
+    felt= Field(
+        tag = ftag,
+        indicators = Indicators(inds[0], inds[1]),
+        subfields = delfelt)
+    rec.add_ordered_field(felt)
+
 
 # In[1]:
 
