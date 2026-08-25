@@ -8,7 +8,7 @@
 
 from io import StringIO
 import pymarc
-from pymarc import Record, marcxml, Field, XMLWriter
+from pymarc import Record, marcxml, Field, Subfield, Indicators,   XMLWriter
 
 #local modules
 import os
@@ -203,7 +203,7 @@ def replaceLeader(record, newLdrVal):
     record.leader=newLdrVal
 
 def addField(rec, ftag, subspec, inds=(' ', ' ')):
-    #Adds a new field ftag to rec.
+    #Adds and returns a new field ftag to rec, if not an identical already there
     #Subspec is a dict with subfirldtags as keys, subfields values as values
     delfelt=[]
     for tg in subspec.keys():
@@ -212,7 +212,10 @@ def addField(rec, ftag, subspec, inds=(' ', ' ')):
         tag = ftag,
         indicators = Indicators(inds[0], inds[1]),
         subfields = delfelt)
-    rec.add_ordered_field(felt)
+    #check if identical field in the record
+    if not fieldInRecord(rec, felt, compare=list(subspec.keys())):
+        rec.add_ordered_field(felt)
+        return felt
 
 
 # In[1]:

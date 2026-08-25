@@ -41,7 +41,7 @@ from utils import trim
 #import iogeneral
 
 
-# In[1]:
+# In[ ]:
 
 
 from pymarc import Record, marcxml, Field
@@ -102,6 +102,18 @@ def subfieldCounter2(records, delimiter='$'):
             tags.append(fld.tag + delimiter + sf.code)
     for tag in tags:
         cnt[tag] +=1
+    return cnt
+
+def indicatorCounter(fields, whichind=1):
+    #calculates the number of occurrences of indicator values in fields (Which indicator is given by whichind)
+    #fields is a list of Field objects. 
+    #returns a Counter object
+    cnt=Counter()
+    indvals=[]
+    for fld in fields:
+        indvals.append(fld.indicator1 if whichind==1 else fld.indicator2)
+    for ind in sorted(indvals):
+        cnt[ind] +=1
     return cnt
 
 def valueCounter(records, fieldtags, subfieldtags=None, fldPart=None, slice=None, 
