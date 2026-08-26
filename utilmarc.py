@@ -24,7 +24,7 @@ import pdb
 import traceback
 
 
-# In[1]:
+# In[5]:
 
 
 def unionRecords(*recordSets, form=0):
@@ -215,10 +215,11 @@ def addField(rec, ftag, subspec, inds=(' ', ' ')):
     #check if identical field in the record
     if not fieldInRecord(rec, felt, compare=list(subspec.keys())):
         rec.add_ordered_field(felt)
+        print(felt)
         return felt
 
 
-# In[1]:
+# In[3]:
 
 
 #***ISBN handling: Normalization and convertion to long number
@@ -254,7 +255,7 @@ def isbnConvert10to13(isbn, sep='-'):
     return i       
 
 
-# In[ ]:
+# In[4]:
 
 
 # Retrieve publication country from 260a, 264a or 773d
