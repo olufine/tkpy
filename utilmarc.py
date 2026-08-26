@@ -24,7 +24,7 @@ import pdb
 import traceback
 
 
-# In[5]:
+# In[6]:
 
 
 def unionRecords(*recordSets, form=0):
@@ -123,6 +123,22 @@ def fieldInRecord(record,field, compare=['a', '2']):
             i+=1
     return found
 
+def getFieldInRecord(record,field, compare=['a', '2']):
+    #Like fieldInRecord (a Boolean func), but  actually returns either a Field object or None
+    #    iff record contains a field with same tag as field
+    #        and which is a duplicate (according to duplicateFields with comparetag=True)
+    #        this record field is returned
+    #    otherwise returns None
+    recField=None
+    flds=record.get_fields(field.tag)
+    i=0
+    while recField is None and i<len(flds):
+        if duplicateFields(field, flds[i], compare, comparetag=True):
+            recField=flds[i]
+        else:
+            i+=1
+    return recField
+
 def duplicatefieldsInRecord(record,ftag,compare=['a', '2']):
     # Somewhat similar to fieldInRecord, but instead of comparing an external field to 
     # the ones in record, this function looks for duplicates (according to duplicateFields) 
@@ -203,8 +219,10 @@ def replaceLeader(record, newLdrVal):
     record.leader=newLdrVal
 
 def addField(rec, ftag, subspec, inds=(' ', ' ')):
-    #Adds and returns a new field ftag to rec, if not an identical already there
-    #Subspec is a dict with subfirldtags as keys, subfields values as values
+    #Creates a new Field as specified by ftag, subspec and inds
+    # if rec does not contain an identical field, the new field is added to record, and returned
+    # if rec does contain an identical field, this is returned and no new field is added.
+    #Subspec is a dict with subfieldtags as keys, subfields values as values
     delfelt=[]
     for tg in subspec.keys():
         delfelt.append(Subfield(code=tg, value=subspec[tg]))
@@ -213,10 +231,12 @@ def addField(rec, ftag, subspec, inds=(' ', ' ')):
         indicators = Indicators(inds[0], inds[1]),
         subfields = delfelt)
     #check if identical field in the record
-    if not fieldInRecord(rec, felt, compare=list(subspec.keys())):
+    feltdupl=getFieldInRecord(rec, felt, compare=list(subspec.keys()))
+    if feltdupl is None:
         rec.add_ordered_field(felt)
-        print(felt)
         return felt
+    else:
+        return feltdupl
 
 
 # In[3]:
