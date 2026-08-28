@@ -24,7 +24,7 @@ import pdb
 import traceback
 
 
-# In[6]:
+# In[8]:
 
 
 def unionRecords(*recordSets, form=0):
@@ -97,6 +97,8 @@ def duplicateFields (f1, f2, compare=['a', '2'], comparetag=True):
     #If comaperTag=False:Returns True iff f1 and f2 have xactly the same values on subfields listed in compare
     #       irrespective of field tag
     #Note: Returns True even if both f1 and f2 are empty (no a, 2 nor 0 subfields) (if tags are the same of comparetag=False)
+    #Note2: Compares only the subfields listed in compare. If f1 or f2 har mor subfields they are still seen as duplicates, as long as
+    #       the subfields in compare have the same values in both f1 and f2
     lik=False if (comparetag and f1.tag!=f2.tag) else True
     i=0
     while lik and i < len(compare):
@@ -107,6 +109,23 @@ def duplicateFields (f1, f2, compare=['a', '2'], comparetag=True):
         else:
             lik=False
     return lik
+
+def duplicateFieldsStrict (f1, f2):
+    #Strict version of duplicateFiields
+    # Returns Truue iff f1.tag ==f2.tag and f1.subfields_as_dict() == f2.subfields_as_dict()  
+    #   That is, f1 and f2 hae exactly the same subfields with the same values
+    # Note: Indicators are ignored
+    #Convert the subfields dicts to having set values in stead of lists (in case of multiople occ of same subfield tag, 
+    #        in different orders in the 2 fields) 
+    sfLst1=f1.subfields_as_dict()
+    sfLst2=f2.subfields_as_dict()
+    sfSet1=dict()
+    sfSet2=dict()
+    for k in sfLst1:
+        sfSet1[k]=set(sfLst1[k])
+    for k in sfLst2:
+        sfSet2[k]=set(sfLst2[k])
+    return f1.tag == f2.tag and sfSet1 == sfSet2
 
 def fieldInRecord(record,field, compare=['a', '2']):
     #Generalisation of genreInRecord
@@ -237,6 +256,24 @@ def addField(rec, ftag, subspec, inds=(' ', ' ')):
         return felt
     else:
         return feltdupl
+
+def mergeFields (targetf, sourcef, sortfunc=None):
+    #Merges the information in the Field objects targetf and sourcef
+    #For subfields (tags) existing in both: Assign stag.value in sourcef to stag.value in targetf
+    #For subfields in sourcef that are not in targetf, insert those in targetf
+    #Does not touch subfields in targetf that are not in sourcef
+    #return targetf, sortert i henhold til Marc21 sin ordnede liste over delfelter i hhv x00, x10 og x11
+    sourcedict=sourcef.subfields_as_dict()
+    for tg in sourcedict.keys():           #dict of (code : list of values)
+        #Detele all tg subfields from targetf
+        delTrg=targetf.delete_subfield(tg)   
+        while delTrg is not None:
+            delTrg=targetf.delete_subfield(tg)
+        #Add (all) the tg subfield(s) from sourcef
+        for subf in sourcedict[tg]:
+            targetf.add_subfield(tg, subf)
+    targetf.subfields.sort(key=sortfunc)
+    return targetf
 
 
 # In[3]:
