@@ -22,7 +22,7 @@ import csv
 import difflib
 from difflib import SequenceMatcher
 import itertools
-import numpy
+#import numpy
 import unicodedata as ucd
 # debugging
 import pdb
