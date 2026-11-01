@@ -387,7 +387,7 @@ def indexRecords2ByControlField(records, fieldtag, slice=None, leadertag='000'):
 
 # ### Indexing with multiple fields and subfields
 
-# In[ ]:
+# In[1]:
 
 
 #Indeksering etter flere felt og subfelt
@@ -412,6 +412,7 @@ def indexRecords4(records, keySpec, sep='$'):
     return indx
 
 def indexKeys(record, keySpec, fsep='$', sfsep='£'):
+    #****Updated 31.10.2026, to allow for including leader in key***************
     #****Updated 23.6.2026, to better accomodate missing fields in some records***************
     #keySpec is a dict specifying the indexing criterium: fieldtags as keys, subfieldtags 
     #         or position tuples as values
@@ -425,17 +426,20 @@ def indexKeys(record, keySpec, fsep='$', sfsep='£'):
     for fieldtag in keySpec.keys():
         fieldparts=keySpec[fieldtag]    #either subfieldtags or a tuple describing a range in a control field
         #print(fieldtag, fieldparts)
-        flds=record.get_fields(fieldtag)
         rkeys=[]
-        for fld in flds:
-            if fieldparts==[]:    #no specific subfield  nor tuple
-                rkeys.append(fld.value())
-            else:
-                if fieldtag.startswith('00'):    #position based field
-                    rkeys.append(sfsep.join(list(map(lambda x: fld.value()[x[0]:x[1]], keySpec[fieldtag]))))
+        if fieldtag=='000':            #Leader
+            rkeys.append(sfsep.join(list(map(lambda x: str(record.leader)[x[0]:x[1]], keySpec[fieldtag]))))
+        else:
+            flds=record.get_fields(fieldtag)
+            for fld in flds:
+                if fieldparts==[]:    #no specific subfield  nor tuple
+                    rkeys.append(fld.value())
                 else:
-                    if fld.get_subfields(*fieldparts) != []:
-                        rkeys.append(sfsep.join(fld.get_subfields(*fieldparts)))
+                    if fieldtag.startswith('00'):    #position based field
+                        rkeys.append(sfsep.join(list(map(lambda x: fld.value()[x[0]:x[1]], keySpec[fieldtag]))))
+                    else:
+                        if fld.get_subfields(*fieldparts) != []:
+                            rkeys.append(sfsep.join(fld.get_subfields(*fieldparts)))
         if rkeys==[]:          #rkeys may be [] fieldtag has no occurrences in record.Then put in an empty string
             rkeys.append('')
         if list1==[]:    #first part of key

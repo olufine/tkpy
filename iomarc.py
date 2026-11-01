@@ -88,7 +88,7 @@ def printFieldss(records, fldtags):
                     print('\t', ftag, ':', ''.join(f.indicators), f.subfields)      
 
 
-# In[5]:
+# In[1]:
 
 
 #Making spreadsheet reports from marc records based on a spec in form of a dict
@@ -141,7 +141,7 @@ def makeRowPart4Field1 (record, tg, subtags=[], concatFields=True, sep1='|', sep
     #Returns a list of tuples, each a tuple of subfield values for field tg and subfield subtags
     #If tg occurs >1 in record create a row for each occurrence if concatFields=False
     #if concatFields=True: Cncatenate all occurrences of tg
-    #if any subfield occurrs >1, always concatenate the values
+    #if any subfield occurs >1, always concatenate the values
     #Similar to makeRowPart4Field2, to be used when subfields are listed in separate columns
     tuples=[]
     if record.get_fields(tg) == []:
@@ -157,7 +157,7 @@ def makeRowPart4Field1 (record, tg, subtags=[], concatFields=True, sep1='|', sep
         for fld in record.get_fields(tg):
             if subtags==[]:
                 if tg.startswith('00'):
-                    valstr= valstr + sep1 + fld.value()
+                    valstr= valstr + sep1 + fld.value().replace('\n', '').replace('\r', '')
                 else:
                     valstr= valstr + sep1 + oneLineStr(fld.value())
             else:
@@ -177,7 +177,7 @@ def makeRowPart4Field1 (record, tg, subtags=[], concatFields=True, sep1='|', sep
             fieldval=[]
             if subtags==[]:
                 if tg.startswith('00'):
-                    fieldval.append(fld.value())   #we want the exact string for positional fields
+                    fieldval.append(fld.value().replace('\n', '').replace('\r', ''))   #we want the exact string for positional fields
                 else:
                     fieldval.append(oneLineStr(fld.value()))
             else:
@@ -194,7 +194,6 @@ def makeRowPart4Field2 (record, tg, subtags=[], concatFields=True, sep1='|', sep
     #Returns a list of tuples/rows, each a tuple of one string, consisting of the value of tg as specified by subtags
     #If tg occurs >1 in record create a row for each occurrence if concatFields=False
     #if concatFields=True: Cncatenate all occurrences of tg
-    #Similar to makeRowPart4Field2, to be used when 1 column per field
     tuples=[]
     if record.get_fields(tg) == []:
         tuples.append(('',))
@@ -204,7 +203,7 @@ def makeRowPart4Field2 (record, tg, subtags=[], concatFields=True, sep1='|', sep
         for fld in record.get_fields(tg):
             if subtags==[]:
                 if tg.startswith('00'):
-                    valstr= valstr + sep1 + fld.value()   #we want the exact string for positional fields
+                    valstr= valstr + sep1 + fld.value().replace('\n', '').replace('\r', '')   #we want the exact string for positional fields
                 else:
                     valstr= valstr + sep1 + oneLineStr(fld.value())
             else:
@@ -220,7 +219,7 @@ def makeRowPart4Field2 (record, tg, subtags=[], concatFields=True, sep1='|', sep
             fieldval=[]
             if subtags==[]:
                 if tg.startswith('00'):
-                    fieldval.append(fld.value())   #we want the exact string for positional fields
+                    fieldval.append(fld.value().replace('\n', '').replace('\r', ''))   #we want the exact string for positional fields, but not newline
                 else:
                     fieldval.append(oneLineStr(fld.value()))
             else:
