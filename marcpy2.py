@@ -411,11 +411,12 @@ def indexRecords4(records, keySpec, sep='$'):
         indx[k]=list(set(indx[k]))
     return indx
 
-def indexKeys(record, keySpec, fsep='$', sfsep='£'):
+def indexKeys(record, keySpec, fsep='$', sfsep='£', strp=':'):
     #****Updated 31.10.2026, to allow for including leader in key***************
     #****Updated 23.6.2026, to better accomodate missing fields in some records***************
     #keySpec is a dict specifying the indexing criterium: fieldtags as keys, subfieldtags 
     #         or position tuples as values
+    #strp  is a string to strip from field or subfield values
     #Ex: {'008':[(15,18), (7,8)], '100':['a', 'd'], '245':['a']}
     #Return a list of strings corresponding to record's value(s) of fields and subfields in keySpec
     #If all fields (keys) in keySpec occur only once in record, only one indexkey is created, i.e. a list of one string is returned
@@ -433,13 +434,13 @@ def indexKeys(record, keySpec, fsep='$', sfsep='£'):
             flds=record.get_fields(fieldtag)
             for fld in flds:
                 if fieldparts==[]:    #no specific subfield  nor tuple
-                    rkeys.append(fld.value())
+                    rkeys.append(fld.value().strip().strip(strp).strip())
                 else:
                     if fieldtag.startswith('00'):    #position based field
                         rkeys.append(sfsep.join(list(map(lambda x: fld.value()[x[0]:x[1]], keySpec[fieldtag]))))
                     else:
                         if fld.get_subfields(*fieldparts) != []:
-                            rkeys.append(sfsep.join(fld.get_subfields(*fieldparts)))
+                            rkeys.append(sfsep.join([val.strip().strip(strp).strip() for val in fld.get_subfields(*fieldparts)]))
         if rkeys==[]:          #rkeys may be [] fieldtag has no occurrences in record.Then put in an empty string
             rkeys.append('')
         if list1==[]:    #first part of key
